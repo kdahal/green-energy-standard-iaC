@@ -30,6 +30,17 @@ jobs:
         with:
           github_token: ${{ github.token }}
 
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: terraform/
+          framework: terraform
+          # This is the "Consultant" way to handle PoC bypasses
+          skip_check: CKV_AWS_39,CKV_AWS_38,CKV_TF_1,CKV_AWS_37,CKV_AWS_58
+          soft_fail: false
+
+
   # --- Phase 2: Infrastructure Validation ---
   terraform_plan:
     name: "Terraform Plan & Validation"
@@ -78,12 +89,3 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-
-      - name: Run Checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: terraform/
-          framework: terraform
-          # This is the "Consultant" way to handle PoC bypasses
-          skip_check: CKV_AWS_39,CKV_AWS_38,CKV_TF_1,CKV_AWS_37,CKV_AWS_58
-          soft_fail: false
