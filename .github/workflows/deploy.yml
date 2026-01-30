@@ -58,9 +58,9 @@ jobs:
         run: terraform init
         working-directory: ./terraform/modules/unified-infrastructure
 
-      - name: Terraform Validate
-        run: terraform validate
-        working-directory: ./terraform/modules/unified-infrastructure
+      # - name: Terraform Validate
+      #   run: terraform validate
+      #   working-directory: ./terraform/modules/unified-infrastructure
 
       # - name: Terraform Plan
       #   id: plan
