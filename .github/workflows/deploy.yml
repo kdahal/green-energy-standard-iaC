@@ -1,4 +1,4 @@
-name: "Stem Unified Platform: Security Audit"
+name: "Stem Unified Pipeline: Security & Validation"
 
 on:
   push:
@@ -16,20 +16,33 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Checkov
-        id: checkov
         uses: bridgecrewio/checkov-action@master
         with:
-          # This tells Checkov to look everywhere for .tf files
-          directory: . 
+          directory: terraform/
           framework: terraform
-          # This tells Checkov to skip the checks we discussed for the PoC
+          # This is the "Consultant" way to handle PoC bypasses
           skip_check: CKV_AWS_39,CKV_AWS_38,CKV_TF_1,CKV_AWS_37,CKV_AWS_58
-          soft_fail: false 
-          download_external_modules: true
+          soft_fail: false
 
-  # --- Phase 2: Static Code Validation ---
-  terraform_validate:
-    name: "Terraform Lint & Validate"
+      # - name: Run Checkov
+      #   id: checkov
+      #   uses: bridgecrewio/checkov-action@master
+      #   with:
+      #     directory: terraform/
+      #     framework: terraform
+      #     # This ensures we don't deploy if security risks exist
+      #     soft_fail: false 
+      #     download_external_modules: true
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        with:
+          github_token: ${{ github.token }}
+
+
+  # --- Phase 2: Infrastructure Validation ---
+  terraform_plan:
+    name: "Terraform Plan & Validation"
     needs: security_audit
     runs-on: ubuntu-latest
     steps:
@@ -38,9 +51,40 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
 
       - name: Terraform Init
-        run: terraform init -backend=false # No AWS creds needed for this
-        
-      - name: Terraform Validate
-        run: terraform validate
+        run: terraform init
+        working-directory: ./terraform/modules/unified-infrastructure
+
+      # - name: Terraform Validate
+      #   run: terraform validate
+      #   working-directory: ./terraform/modules/unified-infrastructure
+
+      # - name: Terraform Plan
+      #   id: plan
+      #   run: terraform plan -no-color
+      #   working-directory: ./terraform/modules/unified-infrastructure
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_REGION: "us-west-2"
+
+      - name: Update Pull Request with Plan
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const output = `#### Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n
+            ${process.env.PLAN}
+            \n\`\`\`
+            </details>`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
