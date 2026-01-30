@@ -1,11 +1,3 @@
-# green-energy-standard-iaC
-
-To stand out for a **Staff/Senior Architect** role, your README shouldn't just explain *how* the code works; it should explain *why* it matters to the business.
-
-This draft is designed to be a "Executive Technical Summary." It uses the exact terminology from the Stem JD (Athena, PowerTrack, Locus) to create immediate recognition.
-
----
-
 # Stem Unified Cloud Engine (SUCE)
 
 ### Platform Unification & Standardization Roadmap
@@ -105,9 +97,3 @@ Security is shifted left. Every deployment in this repo automatically undergoes:
 This project was developed with a **"Public Trust"** mindset—prioritizing security, reliability, and cost-efficiency to support the global energy transition.
 
 ---
-
-### Next Step for You:
-
-I can now generate the **Terraform code** for the "Standardized VPC/EKS" module or the **GitHub Action pipeline** that includes the security scanning.
-
-**Which technical component would you like me to build first to populate this repo?**
