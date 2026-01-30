@@ -16,22 +16,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Checkov
-        id: checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: terraform/
-          framework: terraform
-          # This ensures we don't deploy if security risks exist
-          soft_fail: false 
-          download_external_modules: true
-
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
-        with:
-          github_token: ${{ github.token }}
-
-
-      - name: Run Checkov
         uses: bridgecrewio/checkov-action@master
         with:
           directory: terraform/
@@ -39,6 +23,21 @@ jobs:
           # This is the "Consultant" way to handle PoC bypasses
           skip_check: CKV_AWS_39,CKV_AWS_38,CKV_TF_1,CKV_AWS_37,CKV_AWS_58
           soft_fail: false
+
+      # - name: Run Checkov
+      #   id: checkov
+      #   uses: bridgecrewio/checkov-action@master
+      #   with:
+      #     directory: terraform/
+      #     framework: terraform
+      #     # This ensures we don't deploy if security risks exist
+      #     soft_fail: false 
+      #     download_external_modules: true
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        with:
+          github_token: ${{ github.token }}
 
 
   # --- Phase 2: Infrastructure Validation ---
